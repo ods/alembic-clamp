@@ -1,6 +1,9 @@
 alembic_clamp
 =============
 
+.. image:: https://github.com/ods/alembic-clamp/blob/master/icon.svg
+    :align: right
+
 A wrapper around alembic_ (SQLAlchemy_ migration tool), that is configurable
 from code instead of ``alembic.ini`` file.
 
