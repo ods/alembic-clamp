@@ -2,19 +2,22 @@ import functools
 import shutil
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Dict
+from typing import Dict, Union
 
 import alembic
 import click as click
 from sqlalchemy import MetaData
 
-from alembic_clamp.alembic_clamp import AlembicClamp
+from .clamp import AlembicClamp
 
 
 class AlembicGroup(click.Group):
     commands = {}
 
-    def __init__(self, name: str, db_settings: Dict, metadata: MetaData, migrations_path: Path, config_args={}):
+    def __init__(
+        self, name: str, db_settings: Dict, metadata: MetaData,
+        migrations_path: Union[str, Path], config_args={},
+    ):
         super().__init__(
             name=name,
             help='Migration commands',
@@ -41,7 +44,8 @@ def get_alembic_clamp():
     migrations_path = ctx.obj.migrations_path
 
     return AlembicClamp(
-        dsn=dsn, metadata=metadata, migrations_path=migrations_path, config_args=ctx.obj.config_args,
+        dsn=dsn, metadata=metadata, migrations_path=migrations_path,
+        config_args=ctx.obj.config_args,
     )
 
 

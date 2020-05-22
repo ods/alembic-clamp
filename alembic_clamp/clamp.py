@@ -1,6 +1,7 @@
 from collections import ChainMap
 import logging
 from pathlib import Path
+from typing import Union
 
 from alembic.autogenerate import RevisionContext
 from alembic.config import Config
@@ -15,10 +16,13 @@ logger = logging.getLogger(__name__)
 class AlembicClamp:
     _script_directory = None
 
-    def __init__(self, dsn: str, metadata: MetaData, migrations_path: Path, config_args: dict = {}):
+    def __init__(
+        self, dsn: str, metadata: MetaData, migrations_path: Union[str, Path],
+        config_args: dict = {},
+    ):
         self.dsn = dsn
         self.metadata = metadata
-        self.script_location = migrations_path.resolve()
+        self.script_location = Path(migrations_path).resolve()
         config_args = ChainMap(
             config_args,
             {
@@ -37,8 +41,8 @@ class AlembicClamp:
 
     def _run_env_online(self, e_ctx: EnvironmentContext):
         """
-        Equivalent of running env.py script in online mode (with actual database
-        connection)
+        Equivalent of running env.py script in online mode (with actual
+        database connection)
         """
         engine = sqlalchemy.engine_from_config(
             e_ctx.config.get_section(e_ctx.config.config_ini_section),
@@ -62,8 +66,8 @@ class AlembicClamp:
 
     def _run_env_offline(self, e_ctx: EnvironmentContext):
         """
-        Equivalent of running env.py script in offline mode (without connecting to
-        database)
+        Equivalent of running env.py script in offline mode (without connecting
+        to database)
         """
         e_ctx.configure(url=self.dsn, target_metadata=self.metadata,
                         literal_binds=True)
