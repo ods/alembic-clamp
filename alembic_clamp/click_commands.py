@@ -8,7 +8,7 @@ import alembic
 import click as click
 from sqlalchemy import MetaData
 
-from alembic_clamp.alembic_wrapper import AlembicWrapper
+from alembic_clamp.alembic_clamp import AlembicClamp
 
 
 class AlembicGroup(click.Group):
@@ -33,14 +33,14 @@ class AlembicGroup(click.Group):
         super().invoke(ctx)
 
 
-def get_alembic_wrapper():
+def get_alembic_clamp():
     ctx = click.get_current_context()
 
     dsn = ctx.obj.db_settings['dsn']
     metadata = ctx.obj.models_metadata
     migrations_path = ctx.obj.migrations_path
 
-    return AlembicWrapper(
+    return AlembicClamp(
         dsn=dsn, metadata=metadata, migrations_path=migrations_path, config_args=ctx.obj.config_args,
     )
 
@@ -65,7 +65,7 @@ def command(*args, **kwargs):
 @command(help='Initialize a new scripts directory')
 @click.option('-f', '--force', is_flag=True)
 def init(force):
-    aw = get_alembic_wrapper()
+    aw = get_alembic_clamp()
 
     script_dir = Path(aw.script_location)
     if script_dir.exists() and not force:
@@ -96,14 +96,14 @@ def init(force):
     help='generate empty script if no changes detected'
 )
 def new_migration(message, allow_empty):
-    aw = get_alembic_wrapper()
+    aw = get_alembic_clamp()
     aw.new_migration(message=message, allow_empty=allow_empty)
 
 
 @command(help='Run migration to specified revision')
 @click.argument('revision', default='head')
 def upgrade(revision):
-    aw = get_alembic_wrapper()
+    aw = get_alembic_clamp()
     if ":" in revision:
         raise click.ClickException(
             'Range revision is not allowed for upgrade')
@@ -113,7 +113,7 @@ def upgrade(revision):
 @command(help='Show SQL for migration')
 @click.argument('revision', default='head')
 def show_upgrade_sql(revision):
-    aw = get_alembic_wrapper()
+    aw = get_alembic_clamp()
 
     starting_revision = None
     if ':' in revision:
@@ -125,7 +125,7 @@ def show_upgrade_sql(revision):
 @command(help='Run migration to specified revision')
 @click.argument('revision', default='base')
 def downgrade(revision):
-    aw = get_alembic_wrapper()
+    aw = get_alembic_clamp()
     if ":" in revision:
         raise click.ClickException(
             'Range revision is not allowed for downgrade')
@@ -135,7 +135,7 @@ def downgrade(revision):
 @command(help='Show SQL for migration')
 @click.argument('revision', default='base')
 def show_downgrade_sql(revision):
-    aw = get_alembic_wrapper()
+    aw = get_alembic_clamp()
 
     starting_revision = None
     if ':' in revision:

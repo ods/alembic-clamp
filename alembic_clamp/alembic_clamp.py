@@ -12,7 +12,7 @@ from sqlalchemy import MetaData
 logger = logging.getLogger(__name__)
 
 
-class AlembicWrapper:
+class AlembicClamp:
     _script_directory = None
 
     def __init__(self, dsn: str, metadata: MetaData, migrations_path: Path, config_args: dict = {}):
